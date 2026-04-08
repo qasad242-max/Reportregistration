@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Research Portal ✨</title>
+    <style>
+        :root {
+            --primary-grad: linear-gradient(135deg, #1abc9c, #2ecc71);
+            --secondary-grad: linear-gradient(to right, #2c1b54, #8b1c7c);
+            --bg-grad: linear-gradient(135deg, #eef2f3 0%, #cfe0f5 100%);
+            --glow-color: rgba(52, 152, 219, 0.4);
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-grad); min-height: 100vh; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 140px; position: relative; overflow-x: hidden; }
+        body::before { content: ''; position: fixed; top: -50px; left: -50px; width: calc(100% + 100px); height: calc(100% + 100px); background-image: radial-gradient(var(--glow-color) 1px, transparent 1px); background-size: 50px 50px; opacity: 0.3; z-index: -1; }
+        .sticker { position: absolute; font-size: 3rem; opacity: 0.7; pointer-events: none; animation: float 6s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-15px) rotate(5deg); } }
+        .sticker-1 { top: 10%; left: 5%; font-size: 4rem;} .sticker-2 { top: 70%; right: 5%; font-size: 3.5rem;} .sticker-3 { top: 40%; left: 80%; font-size: 2.5rem;} .sticker-4 { top: 20%; right: 15%; font-size: 2rem;}
+        
+        .main-title { color: #2c3e50; font-weight: 800; font-size: 32px; text-align: center; margin-bottom: 10px; text-shadow: 0 0 10px rgba(52, 152, 219, 0.3); }
+        .subtitle { text-align: center; color: #7f8c8d; font-size: 16px; margin-bottom: 30px; }
+        
+        .card { background: rgba(255, 255, 255, 0.9); padding: 40px 30px; margin: 15px; width: 90%; max-width: 400px; border-radius: 30px; box-shadow: 0 15px 45px rgba(0,0,0,0.1), 0 5px 15px var(--glow-color); text-align: center; border: 1px solid rgba(255,255,255,0.4); position: relative; }
+        .sticker-icon { background: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; font-size: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); position: absolute; top: -30px; left: calc(50% - 30px); border: 3px solid rgba(255,255,255,0.8); transform: rotate(-10deg); }
+        .card h2 { margin-top: 20px; color: #1a252f; font-size: 24px; font-weight: 700;}
+        .card p { color: #576574; font-size: 14px; margin-bottom: 25px; line-height: 1.6; }
+        
+        .input-group { position: relative; margin: 18px 0; }
+        .input-group-label { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 20px; }
+        input { width: 100%; padding: 18px 15px 18px 50px; border: 2px solid #e0e6ed; border-radius: 15px; box-sizing: border-box; font-size: 16px; background: #ffffff; }
+        input:focus { border-color: #3498db; outline: none; box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.2); }
+        
+        .btn-primary { width: 100%; padding: 18px; border: none; border-radius: 15px; cursor: pointer; font-size: 19px; font-weight: 700; background: var(--primary-grad); color: white; margin-top: 15px; box-shadow: 0 8px 18px rgba(46, 204, 113, 0.4); transition: 0.3s;}
+        .btn-primary:disabled { background: #95a5a6; cursor: not-allowed; box-shadow: none; }
+        
+        .bottom-download-section { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 460px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border-radius: 40px 40px 0 0; padding: 25px 20px 35px; text-align: center; box-shadow: 0 -10px 30px rgba(0,0,0,0.06); border: 1px solid rgba(255,255,255,0.4); z-index: 99; box-sizing: border-box; }
+        .bottom-download-section p { margin: 0 0 15px 0; color: #576574; font-size: 15px; font-weight: 600; }
+        .btn-download { background: var(--secondary-grad); color: white; border: none; padding: 18px 35px; border-radius: 50px; font-size: 18px; font-weight: 700; width: 90%; cursor: pointer; box-shadow: 0 10px 25px rgba(139, 28, 124, 0.4); display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 auto; }
+        .btn-download svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 40px 30px; border-radius: 30px; width: 90%; max-width: 400px; text-align: center; position: relative; border: 2px solid rgba(255,255,255,0.8); }
+        .close-btn { position: absolute; top: 20px; right: 25px; font-size: 32px; cursor: pointer; color: #a4b0be; }
+        
+        .qr-box { background: #f8faff; padding: 25px; border-radius: 20px; margin: 25px 0; border: 2px dashed #3498db; position: relative; }
+        .qr-box::before { content: '🛍️ Secure'; position: absolute; top: -12px; left: 20px; background: #f8faff; padding: 0 10px; font-size: 13px; color: #3498db; font-weight: bold; }
+        .qr-box img { width: 170px; height: 170px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
+        .price-tag { font-size: 28px; color: #e74c3c; font-weight: 800; margin-bottom: 12px;}
+        .btn-secondary { width: 100%; padding: 18px; border: none; border-radius: 15px; cursor: pointer; font-size: 17px; font-weight: 700; background: linear-gradient(135deg, #3498db, #2980b9); color: white; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="sticker sticker-1">📚</div>
+    <div class="sticker sticker-2">🎓</div>
+    <div class="sticker sticker-3">✨</div>
+    <div class="sticker sticker-4">💡</div>
+
+    <div class="main-title">Research Portal 🚀</div>
+    <p class="subtitle">Aapka high-quality academic partner! 30-page research documents. 📝</p>
+    
+    <div class="card">
+        <div class="sticker-icon">✍️</div>
+        <h2>Generate New Report</h2>
+        <p>Apna full details aur research topic enter karein humare portal mein.</p>
+        <div class="input-group">
+            <span class="input-group-label">👤</span>
+            <input type="text" id="userName" placeholder="Apna Full Name dalein" required>
+        </div>
+        <div class="input-group">
+            <span class="input-group-label">🔍</span>
+            <input type="text" id="userTopic" placeholder="Topic (jaise: AI in Health)" required>
+        </div>
+        <button class="btn-primary" id="proceedBtn">Proceed to Pay ₹49 👛</button>
+    </div>
+
+    <div class="bottom-download-section">
+        <p>🔑 Access previous orders:</p>
+        <button class="btn-download" onclick="openDownloadPopup()">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download Report
+        </button>
+    </div>
+
+    <div id="paymentModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closePopups()">&times;</span>
+            <h2>Secure Payment 💳</h2>
+            <p>Scan the QR code below and pay ₹49 using any UPI app.</p>
+            <div class="qr-box">
+                <div class="price-tag">Total: ₹49</div>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=your-upi-id@bank&pn=ReportPortal&am=49.00&cu=INR" alt="QR Code">
+                <p style="font-size: 13px; color: #747d8c; margin-top: 10px; font-weight: bold;">Auto-generated link ✅</p>
+            </div>
+            <form id="orderForm">
+                <input type="hidden" id="hiddenName">
+                <input type="hidden" id="hiddenTopic">
+                <input type="text" id="utrInput" required placeholder="Enter 12-Digit UTR Number" pattern="\d{12}">
+                <button type="submit" class="btn-primary" id="submitBtn">Submit My Order 🛍️</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="downloadModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closePopups()">&times;</span>
+            <h2>File Download 🔑</h2>
+            <p>Enter the 12-digit UTR number from your payment receipt to access your file.</p>
+            <form id="downloadForm">
+                <input type="text" id="downloadUtr" required placeholder="Paste Your Payment UTR" pattern="\d{12}">
+                <button type="submit" class="btn-secondary">Verify & Download ⬇️</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openDownloadPopup() { document.getElementById("downloadModal").style.display = "flex"; }
+        function closePopups() { document.getElementById("paymentModal").style.display = "none"; document.getElementById("downloadModal").style.display = "none"; }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        // Humne query, where aur getDocs ko import me add kiya hai taaki count check kar sakein
+        import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_Zz7F7N4SDGej4vq4HtOuijYCqd3KTMo",
+            authDomain: "b-pharm-all-in-one.firebaseapp.com",
+            databaseURL: "https://b-pharm-all-in-one-default-rtdb.firebaseio.com",
+            projectId: "b-pharm-all-in-one",
+            storageBucket: "b-pharm-all-in-one.firebasestorage.app",
+            messagingSenderId: "776475646692",
+            appId: "1:776475646692:web:e96162155e7c61259aeaf1",
+            measurementId: "G-X3ZHBB17V5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ==========================================
+        // NEW FEATURE: CHECK LIMIT BEFORE PROCEEDING
+        // ==========================================
+        document.getElementById('proceedBtn').addEventListener('click', async () => {
+            var name = document.getElementById("userName").value.trim();
+            var topic = document.getElementById("userTopic").value.trim();
+            
+            if (name === "" || topic === "") { 
+                alert("Opps! 💡 Kripya apna Name aur Topic pehle dalein."); 
+                return; 
+            }
+
+            const btn = document.getElementById('proceedBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "Checking Slots... ⏳"; // Button loading state
+            btn.disabled = true;
+
+            try {
+                // Firebase me check karega ki kitne pending orders hain
+                const q = query(collection(db, "orders"), where("status", "==", "pending"));
+                const querySnapshot = await getDocs(q);
+                
+                // Agar 5 ya usse zyada slots full hain
+                if (querySnapshot.size >= 5) {
+                    alert("⚠️ CAPACITY FULL: Abhi humare paas maximum limit (5 orders) process ho rahe hain. Kripya naya slot open hone ka wait karein aur thodi der baad try karein.");
+                } else {
+                    // Agar slots khaali hain, tabhi payment popup khulega
+                    document.getElementById("hiddenName").value = name;
+                    document.getElementById("hiddenTopic").value = topic;
+                    document.getElementById("paymentModal").style.display = "flex";
+                }
+            } catch (error) {
+                alert("Error checking availability: " + error.message);
+            }
+
+            btn.innerHTML = originalText; // Reset button
+            btn.disabled = false;
+        });
+
+        // Submit Order Logic
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = "Processing...";
+            
+            const name = document.getElementById('hiddenName').value;
+            const topic = document.getElementById('hiddenTopic').value;
+            const utr = document.getElementById('utrInput').value.trim();
+
+            const docRef = doc(db, "orders", utr);
+            try {
+                const docSnap = await getDoc(docRef);
+                if(docSnap.exists()) {
+                    alert("❌ Ye UTR number pehle se use ho chuka hai.");
+                } else {
+                    await setDoc(docRef, { name: name, topic: topic, utr: utr, status: "pending", link: "" });
+                    alert("✅ Order Placed Successfully! Hum jaldi hi report upload karenge.");
+                    closePopups();
+                    document.getElementById('orderForm').reset();
+                    // Optional: Main form bhi reset karna
+                    document.getElementById("userName").value = "";
+                    document.getElementById("userTopic").value = "";
+                }
+            } catch (error) {
+                alert("Error connecting to database: " + error.message);
+            }
+            btn.innerText = "Submit My Order 🛍️";
+        });
+
+        // Download Logic
+        document.getElementById('downloadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const utr = document.getElementById('downloadUtr').value.trim();
+            const docRef = doc(db, "orders", utr);
+            
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.status === "completed" && data.link !== "") {
+                        alert("✅ File Found! Opening MediaFire link...");
+                        window.open(data.link, '_blank');
+                    } else {
+                        alert("⏳ Aapki report abhi ready nahi hai. Kripya thodi der baad try karein.");
+                    }
+                } else {
+                    alert("❌ Invalid UTR. Is number par koi order nahi mila.");
+                }
+            } catch (error) {
+                alert("Error checking order: " + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
