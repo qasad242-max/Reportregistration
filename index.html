@@ -25,9 +25,9 @@
         .card h2 { margin-top: 20px; color: #1a252f; font-size: 24px; font-weight: 700;}
         .card p { color: #576574; font-size: 14px; margin-bottom: 25px; line-height: 1.6; }
         
-        .input-group { position: relative; margin: 18px 0; }
+        .input-group { position: relative; margin: 15px 0; }
         .input-group-label { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 20px; }
-        input { width: 100%; padding: 18px 15px 18px 50px; border: 2px solid #e0e6ed; border-radius: 15px; box-sizing: border-box; font-size: 16px; background: #ffffff; }
+        input { width: 100%; padding: 16px 15px 16px 50px; border: 2px solid #e0e6ed; border-radius: 15px; box-sizing: border-box; font-size: 15px; background: #ffffff; }
         input:focus { border-color: #3498db; outline: none; box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.2); }
         
         .btn-primary { width: 100%; padding: 18px; border: none; border-radius: 15px; cursor: pointer; font-size: 19px; font-weight: 700; background: var(--primary-grad); color: white; margin-top: 15px; box-shadow: 0 8px 18px rgba(46, 204, 113, 0.4); transition: 0.3s;}
@@ -38,8 +38,8 @@
         .btn-download { background: var(--secondary-grad); color: white; border: none; padding: 18px 35px; border-radius: 50px; font-size: 18px; font-weight: 700; width: 90%; cursor: pointer; box-shadow: 0 10px 25px rgba(139, 28, 124, 0.4); display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 auto; }
         .btn-download svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
         
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 40px 30px; border-radius: 30px; width: 90%; max-width: 400px; text-align: center; position: relative; border: 2px solid rgba(255,255,255,0.8); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); z-index: 1000; justify-content: center; align-items: center; overflow-y: auto;}
+        .modal-content { background: white; padding: 40px 30px; border-radius: 30px; width: 90%; max-width: 400px; text-align: center; position: relative; border: 2px solid rgba(255,255,255,0.8); margin: 20px auto;}
         .close-btn { position: absolute; top: 20px; right: 25px; font-size: 32px; cursor: pointer; color: #a4b0be; }
         
         .qr-box { background: #f8faff; padding: 25px; border-radius: 20px; margin: 25px 0; border: 2px dashed #3498db; position: relative; }
@@ -62,7 +62,8 @@
     <div class="card">
         <div class="sticker-icon">✍️</div>
         <h2>Generate New Report</h2>
-        <p>Apna full details aur research topic enter karein humare portal mein.</p>
+        <p>Apna full details enter karein humare portal mein.</p>
+        
         <div class="input-group">
             <span class="input-group-label">👤</span>
             <input type="text" id="userName" placeholder="Apna Full Name dalein" required>
@@ -71,6 +72,15 @@
             <span class="input-group-label">🔍</span>
             <input type="text" id="userTopic" placeholder="Topic (jaise: AI in Health)" required>
         </div>
+        <div class="input-group">
+            <span class="input-group-label">👨‍🏫</span>
+            <input type="text" id="userSupervisor" placeholder="Supervisor Name" required>
+        </div>
+        <div class="input-group">
+            <span class="input-group-label">🧑‍🏫</span>
+            <input type="text" id="userCoSupervisor" placeholder="Co-Supervisor (Optional)">
+        </div>
+
         <button class="btn-primary" id="proceedBtn">Proceed to Pay ₹49 👛</button>
     </div>
 
@@ -95,6 +105,8 @@
             <form id="orderForm">
                 <input type="hidden" id="hiddenName">
                 <input type="hidden" id="hiddenTopic">
+                <input type="hidden" id="hiddenSupervisor">
+                <input type="hidden" id="hiddenCoSupervisor">
                 <input type="text" id="utrInput" required placeholder="Enter 12-Digit UTR Number" pattern="\d{12}">
                 <button type="submit" class="btn-primary" id="submitBtn">Submit My Order 🛍️</button>
             </form>
@@ -120,7 +132,6 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        // Humne query, where aur getDocs ko import me add kiya hai taaki count check kar sakein
         import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -137,42 +148,43 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // ==========================================
-        // NEW FEATURE: CHECK LIMIT BEFORE PROCEEDING
-        // ==========================================
+        // CHECK LIMIT BEFORE PROCEEDING
         document.getElementById('proceedBtn').addEventListener('click', async () => {
             var name = document.getElementById("userName").value.trim();
             var topic = document.getElementById("userTopic").value.trim();
+            var supervisor = document.getElementById("userSupervisor").value.trim();
+            var coSupervisor = document.getElementById("userCoSupervisor").value.trim();
             
-            if (name === "" || topic === "") { 
-                alert("Opps! 💡 Kripya apna Name aur Topic pehle dalein."); 
+            // Checking if mandatory fields are filled
+            if (name === "" || topic === "" || supervisor === "") { 
+                alert("Opps! 💡 Kripya Name, Topic aur Supervisor Name zaroor dalein."); 
                 return; 
             }
 
             const btn = document.getElementById('proceedBtn');
             const originalText = btn.innerHTML;
-            btn.innerHTML = "Checking Slots... ⏳"; // Button loading state
+            btn.innerHTML = "Checking Slots... ⏳"; 
             btn.disabled = true;
 
             try {
-                // Firebase me check karega ki kitne pending orders hain
                 const q = query(collection(db, "orders"), where("status", "==", "pending"));
                 const querySnapshot = await getDocs(q);
                 
-                // Agar 5 ya usse zyada slots full hain
                 if (querySnapshot.size >= 5) {
-                    alert("⚠️ CAPACITY FULL: Abhi humare paas maximum limit (5 orders) process ho rahe hain. Kripya naya slot open hone ka wait karein aur thodi der baad try karein.");
+                    alert("⚠️ CAPACITY FULL: Abhi humare paas maximum limit (5 orders) process ho rahe hain. Kripya naya slot open hone ka wait karein.");
                 } else {
-                    // Agar slots khaali hain, tabhi payment popup khulega
+                    // Set values to hidden fields
                     document.getElementById("hiddenName").value = name;
                     document.getElementById("hiddenTopic").value = topic;
+                    document.getElementById("hiddenSupervisor").value = supervisor;
+                    document.getElementById("hiddenCoSupervisor").value = coSupervisor;
                     document.getElementById("paymentModal").style.display = "flex";
                 }
             } catch (error) {
                 alert("Error checking availability: " + error.message);
             }
 
-            btn.innerHTML = originalText; // Reset button
+            btn.innerHTML = originalText; 
             btn.disabled = false;
         });
 
@@ -184,6 +196,8 @@
             
             const name = document.getElementById('hiddenName').value;
             const topic = document.getElementById('hiddenTopic').value;
+            const supervisor = document.getElementById('hiddenSupervisor').value;
+            const coSupervisor = document.getElementById('hiddenCoSupervisor').value;
             const utr = document.getElementById('utrInput').value.trim();
 
             const docRef = doc(db, "orders", utr);
@@ -192,13 +206,23 @@
                 if(docSnap.exists()) {
                     alert("❌ Ye UTR number pehle se use ho chuka hai.");
                 } else {
-                    await setDoc(docRef, { name: name, topic: topic, utr: utr, status: "pending", link: "" });
+                    // Save all details to database
+                    await setDoc(docRef, { 
+                        name: name, 
+                        topic: topic, 
+                        supervisor: supervisor, 
+                        coSupervisor: coSupervisor, 
+                        utr: utr, 
+                        status: "pending", 
+                        link: "" 
+                    });
                     alert("✅ Order Placed Successfully! Hum jaldi hi report upload karenge.");
                     closePopups();
                     document.getElementById('orderForm').reset();
-                    // Optional: Main form bhi reset karna
                     document.getElementById("userName").value = "";
                     document.getElementById("userTopic").value = "";
+                    document.getElementById("userSupervisor").value = "";
+                    document.getElementById("userCoSupervisor").value = "";
                 }
             } catch (error) {
                 alert("Error connecting to database: " + error.message);
@@ -217,7 +241,7 @@
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     if (data.status === "completed" && data.link !== "") {
-                        alert("✅ File Found! Opening MediaFire link...");
+                        alert("✅ File Found! Opening link...");
                         window.open(data.link, '_blank');
                     } else {
                         alert("⏳ Aapki report abhi ready nahi hai. Kripya thodi der baad try karein.");
